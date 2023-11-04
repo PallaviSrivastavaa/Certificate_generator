@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inheriting the event form view -->
+        <record id="view_event_inherited" model="ir.ui.view">
+            <field name="name">event.event</field>
+            <field name="model">event.event</field>
+            <field name="inherit_id" ref="event.view_event_form" />
+            <field name="arch" type="xml">
+                <!-- Adding a new button to the form view -->
+                <header>
+                   <button string="share certificate" class="oe_highlight" type="object" name="action_test" />
+                </header>
+            </field>
+        </record>
+    </data>
+</odoo>
+

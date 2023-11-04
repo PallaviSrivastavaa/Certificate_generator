@@ -1,0 +1,14 @@
+{
+'name': 'Certificate Generator Extension',
+'author': 'Test Author',
+'version': '1.0.0',
+'category': 'CertificateGenerator',
+'summary': 'Summary here',
+'description': "Description here",
+'depends': ['mail','event','base_setup','portal', 'utm'],
+'data': ['views/event_event_views.xml','data/mail_template_data.xml'],
+
+'demo': [],
+'installable': True,
+'assets': {},
+}
