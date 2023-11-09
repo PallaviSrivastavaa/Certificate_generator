@@ -13,14 +13,14 @@ class SendMail(models.TransientModel):
     _description = 'send mail Wizard'
 
     event_id = fields.Many2one('event.event', string='event', required=True)
-    # partner_id = fields.Many2many(
-       # 'res.partner, string='Recipients'
-    #)
-    partner_id = fields.Many2one('res.partner', string='Contact', readonly=True)
-    email = fields.Char('Email', readonly=True)
+    partner_id = fields.Many2many(
+        'res.partner', string='Recipients')
+    #partner_id = fields.Many2one('res.partner', string='Contact', readonly=True)
+   
 
     emails = fields.Text(string='Additional emails', help="This list of emails of recipients will not be converted in contacts.\
-        Emails must be separated by commas, semicolons or newline.")
+        #Emails must be separated by commas, semicolons or newline.")
+    
 
     @api.model
     def _get_default_author(self):
