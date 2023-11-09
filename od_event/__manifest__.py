@@ -6,7 +6,7 @@
 'summary': 'Summary here',
 'description': "Description here",
 'depends': ['mail','event','base_setup','portal', 'utm'],
-'data': ['views/event_event_views.xml','data/mail_template_data.xml'],
+'data': ['views/event_event_views.xml','data/mail_template_data.xml','security/event_security.xml','wizard/send_mail_view.xml'],
 
 'demo': [],
 'installable': True,
