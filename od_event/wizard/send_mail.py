@@ -15,7 +15,7 @@ class SendMail(models.TransientModel):
     event_id = fields.Many2one('event.event', string='event', required=True)
     partner_id = fields.Many2many(
         'res.partner', string='Recipients')
-    #partner_id = fields.Many2one('res.partner', string='Contact', readonly=True)
+   
    
 
     emails = fields.Text(string='Additional emails', help="This list of emails of recipients will not be converted in contacts.\
@@ -39,3 +39,7 @@ class SendMail(models.TransientModel):
             self.email_from = self.template_id.email_from
         else:
             self.email_from = self.env.user.email_formatted
+    
+    
+    def send_mail(self):
+        print("blue")

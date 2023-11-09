@@ -5,9 +5,11 @@ class EventEvent(models.Model):
     _inherit = ['event.event', 'mail.thread', 'mail.activity.mixin']
     
     event_id = fields.Many2one('event.event', string='event', required=True)
+    partner_id = fields.Many2many(
+        'res.partner', string='Recipients')
 
     def action_test(self):
-        template = self.env.ref('od_event.mail_template_data', raise_if_not_found=False)
+        template = self.env.ref('od_event.certificate_mail_template', raise_if_not_found=False)
 
         local_context = dict(
             self.env.context,

@@ -7,17 +7,25 @@
             <field name="arch" type="xml">
                 <form string="Compose Email">
                     <sheet>
-
-                            <field name="event_id" readonly="context.get('default_event_id')"/>
-           
-                           <field name="partner_id"
-                                label="recieipients"
+                    
+                         <field name="render_model" invisible="1"/>
+                         <group>
+                            <field name="event_id" readonly="context.get('default_event_id')" label="Event"/>
+                             <group>
+                       <field name="partner_id"
                                 placeholder="Add existing contacts..."
-                                context="{'force_email':True, 'show_email':True, 'no_create_edit': True}"/>
-                          <field name="emails"
-                               
-                                placeholder="Add a list of email recipients (separated by commas, semicolons or line breaks). They will not be converted into contacts."/>
+                                context="{'force_email':True, 'show_email':True, 'no_create_edit': True}"/> 
+                            <field name="emails"
+                             placeholder="Add a list of email recipients (separated by commas, semicolons or line breaks). They will not be converted into contacts."/>
+                        </group>
+                            </group>
+                                 <group>                             
+                                <field name="template_id" label="Use template"/>
+                            </group>
                     </sheet>
+                    <footer>
+                        <button string="share certificate" class="oe_highlight" type="object" name="send_mail" />
+                        </footer>
                 </form>
             </field>
         </record>

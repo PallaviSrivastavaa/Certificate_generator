@@ -4,15 +4,19 @@
     <field name ="name">Event: certificate</field>
       <field name="model_id" ref="od_event.model_event_event" />
             <field name="subject">certificate</field>
-            <field name="email_from"></field>
-            <field name="email_to"></field>
+            <field name="email_from">{{ user.email_formatted }}</field>
+            <field name="email_to">{{ (object.partner_id.email_formatted or object.email) }}</field>
             <field name="description">Sent to participant </field>
-            <field name="body_html" type="html">
-<div style="margin: 0px; padding: 0px; font-size: 13px;">
-    <p style="margin: 0px; padding: 0px; font-size: 13px;">
-        Dear participant<br/><br/>
+    <field name="body_html" type="html">
+    <div style="margin: 0px; padding: 0px; font-size: 13px;">
+        <p style="margin: 0px; padding: 0px; font-size: 13px;">
+            
+                Dear <span t-out="object.partner_id.name or 'participant'"> participant</span><br/><br/>
+                Here's your certificate for <span t-out="object.event_id'"> the event</span>
+            
         </p>
-        </div>
-        </field>
+    </div>
+</field>
+
     </record>
     </odoo>
