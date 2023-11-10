@@ -9,7 +9,7 @@ emails_split = re.compile(r"[;,\n\r]+")
 
 class SendMail(models.TransientModel):
     _name = 'event.send.mail'
-    _inherit = 'mail.composer.mixin'
+    _inherit = ['mail.composer.mixin','event.registration']
     _description = 'send mail Wizard'
 
     event_id = fields.Many2one('event.event', string='event', required=True)
@@ -42,4 +42,5 @@ class SendMail(models.TransientModel):
     
     
     def send_mail(self):
-        print("blue")
+     print("blue")
+       
