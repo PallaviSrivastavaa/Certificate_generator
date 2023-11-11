@@ -20,7 +20,7 @@ class EventEvent(models.Model):
             default_use_template=bool(template),
             default_template_id=template and template.id or False,
             default_email_layout_xmlid='mail.mail_notification_light',
-            default_mailing_domain=repr([('event_id', 'in', self.ids), ('state', '!=', 'cancel')])
+           # default_mailing_domain=repr([('event_id', 'in', self.ids), ('state', '!=', 'cancel')])
         )
         return {
             'type': 'ir.actions.act_window',

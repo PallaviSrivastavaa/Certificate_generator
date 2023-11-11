@@ -13,7 +13,7 @@
                             <field name="event_id" readonly="context.get('default_event_id')" label="Event"/>
                              <group>
                        <field name="partner_id"
-                            widget="many2many_tags_email"
+                                widget="many2many_tags_email"
                                 placeholder="Add existing contacts..."
                                 context="{'force_email':True, 'show_email':True, 'no_create_edit': True}"/> 
                             

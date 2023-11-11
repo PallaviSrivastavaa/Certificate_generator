@@ -8,14 +8,23 @@
             <field name="email_to">{{ (object.partner_id.email_formatted or object.email) }}</field>
             <field name="description">Sent to participant </field>
     <field name="body_html" type="html">
-    <div style="margin: 0px; padding: 0px; font-size: 13px;">
+   <!-- <div style="margin: 0px; padding: 0px; font-size: 13px;">
         <p style="margin: 0px; padding: 0px; font-size: 13px;">
             
                 Dear <span t-out="object.partner_id.name or 'participant'"> participant</span><br/><br/>
-                Here's your certificate for <span t-out="object.event_id'"> the event</span>
+                Here's your certificate for <span t-out="object.event_id"> the event</span>
             
         </p>
+    </div>-->
+    <div>
+    <div style="margin: 0px; padding: 0px; font-size: 13px;">
+        <p style="margin: 0px; padding: 0px; font-size: 13px;">
+            Dear <span t-if="object.partner_id" t-out="object.partner_id.name or 'participant'"> participant</span><br/><br/>
+            Here's your certificate for <span t-if="object.event_id" t-out="object.event_id.name"> the event</span>
+        </p>
     </div>
+</div>
+
 </field>
 
     </record>
