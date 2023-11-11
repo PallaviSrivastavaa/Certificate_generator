@@ -23,6 +23,7 @@ class SendMail(models.TransientModel):
 
     emails = fields.Text(string='Additional emails', help="This list of emails of recipients will not be converted in contacts.\
         #Emails must be separated by commas, semicolons or newline.")
+    mail_server_id = fields.Many2one('ir.mail_server', 'Outgoing mail server')
     
 
     @api.model
@@ -66,18 +67,18 @@ class SendMail(models.TransientModel):
         # Combine all email addresses
         all_emails = partner_emails + additional_emails
 
-        # Your mail sending logic goes here
-        # Use the 'all_emails' list to send emails
+     
+     
 
        
         mail_template = self.env.ref('od_event.certificate_mail_template', )
         for email in all_emails:
-            # Create and send the mail
+          
             mail_values = {
                 'subject': 'Your Subject',
                 'email_to': email,
                 'body_html': 'Your HTML Body',
-                # Add other mail values as needed
+                
             }
             mail_template.send_mail(self.id, force_send=True, email_values=mail_values)
 
