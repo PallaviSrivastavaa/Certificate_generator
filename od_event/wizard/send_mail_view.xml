@@ -22,7 +22,7 @@
                             </group>
                     </sheet>
                     <footer>
-                        <button string="share certificate" class="oe_highlight" type="object" name="send_mail" />
+                        <button string="send mail" class="oe_highlight" type="object" name="send_mail" />
                         </footer>
                 </form>
             </field>

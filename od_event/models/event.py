@@ -8,6 +8,7 @@ class EventEvent(models.Model):
     partner_id = fields.Many2many(
         'res.partner', string='Recipients')
     email = fields.Char( string='Email')
+    name=fields.Char(string='name')
     user_id = fields.Many2one(
         'res.users', string='Responsible', tracking=True,
         default=lambda self: self.env.user)

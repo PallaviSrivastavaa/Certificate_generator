@@ -13,6 +13,7 @@ class SendMail(models.TransientModel):
     _inherit = ['mail.composer.mixin']
     _description = 'send mail Wizard'
 
+    name = fields.Char(string='Event')
     event_id = fields.Many2one('event.event', string='event', required=True)
     partner_id = fields.Many2many('res.partner',string='Recipients')
     emails = fields.Text(string='Additional emails', help="This list of emails of recipients will not be converted in contacts.\
@@ -31,9 +32,6 @@ class SendMail(models.TransientModel):
         'res.partner', string='Organizer', tracking=True,
         default=lambda self: self.env.company.partner_id,
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
-
-    
-
     @api.model
     def _get_default_author(self):
         print(self.env.user.partner_id)
@@ -69,15 +67,16 @@ class SendMail(models.TransientModel):
         # Combine all email addresses
         all_emails = partner_emails + additional_emails
         email_from = self.organizer_id.email_formatted
-        print(email_from)
-        mail_template = self.env.ref('od_event.certificate_mail_template', )
+        event_name = self.event_id.name
+        mail_template = self.env.ref('od_event.certificate_mail_template', raise_if_not_found=False)
+
         for email in all_emails:        
             mail_values = {
-                'subject': 'Your Subject',
+                'subject': f'Certificate for the event {event_name}',
                 'email_to': email,
                 'email_from': email_from,
-                'body_html': 'Your HTML Body',
-                
+                #'body_html': 'Your HTML Body',
+                 
             }    
             mail_template.send_mail(self.id, force_send=True, email_values=mail_values)
         return {'type': 'ir.actions.act_window_close'}
