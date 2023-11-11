@@ -4,7 +4,7 @@
     <field name ="name">Event: certificate</field>
       <field name="model_id" ref="od_event.model_event_event" />
             <field name="subject">certificate</field>
-            <field name="email_from">{{ user.email_formatted }}</field>
+            <field name="email_from">{{ (object.event_id.organizer_id.email_formatted or object.event_id.user_id.email_formatted or '') }}</field>
             <field name="email_to">{{ (object.partner_id.email_formatted or object.email) }}</field>
             <field name="description">Sent to participant </field>
     <field name="body_html" type="html">

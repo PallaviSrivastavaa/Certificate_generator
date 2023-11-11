@@ -6,8 +6,7 @@
             <field name="model">event.send.mail</field>
             <field name="arch" type="xml">
                 <form string="Compose Email">
-                    <sheet>
-                    
+                    <sheet>                    
                          <field name="render_model" invisible="1"/>
                          <group>
                             <field name="event_id" readonly="context.get('default_event_id')" label="Event"/>
@@ -15,8 +14,7 @@
                        <field name="partner_id"
                                 widget="many2many_tags_email"
                                 placeholder="Add existing contacts..."
-                                context="{'force_email':True, 'show_email':True, 'no_create_edit': True}"/> 
-                            
+                                context="{'force_email':True, 'show_email':True, 'no_create_edit': True}"/>                            
                         </group>
                             </group>
                                  <group>                             
