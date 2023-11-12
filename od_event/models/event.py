@@ -85,8 +85,8 @@ class EventEvent(models.Model):
         event_id = fields.Many2one('event.event', string='event', required=True)
         partner_id = fields.Many2many(
         'res.partner', string='Recipients')
-        fields_info = self.env['event.registration'].fields_get()
-        print(fields_info)
+        
+        
         
 
         local_context = dict(

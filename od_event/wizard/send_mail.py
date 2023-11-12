@@ -59,14 +59,59 @@ class SendMail(models.TransientModel):
         else:
             self.email_from = self.env.user.email_formatted
     
+    def get_attachment_data(self,partner):
+        pdf_content = self.generate_pdf_with_image(partner)
+        return {
+            'name': 'Certificate.pdf',
+            'type': 'binary',
+            'datas': base64.b64encode(pdf_content),
+            'res_model': 'event.send.mail',
+        }
     
     
+    def generate_pdf_with_image(self, partner):
+        # Create a BytesIO object to store the PDF content
+        pdf_buffer = BytesIO()
+
+        # Create a new PDF document
+        pdf = canvas.Canvas(pdf_buffer, pagesize=letter)
+
+        # Retrieve the attachment data from the field (replace 'your_attachment_field' with the actual field name)
+        attachment_data = self.background_image
+        if attachment_data:
+            # Decode the base64-encoded data
+            image_data = base64.b64decode(attachment_data)
+
+            # Create a BytesIO object from the binary image data
+            image_buffer = BytesIO(image_data)
+
+            # Create a PIL Image object from the BytesIO object
+            image = Image.open(image_buffer)
+
+            # Draw the image on the PDF canvas
+            pdf.drawInlineImage(image, 0, 0, width=letter[0], height=letter[1])
+
+            # Add your logic to draw on the PDF and include attendee data
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100, 750, f"Certificate for the event {self.event_id.name}")
+
+            # Adding attendee data for the current partner
+            pdf.drawString(100, 500, f"{partner.name}")
+
+            # Save the PDF content
+            pdf.save()
+
+            # Seek to the beginning of the buffer
+            pdf_buffer.seek(0)
+
+            return pdf_buffer.read()
+        else:
+            raise UserError(_("No background image attachment found."))
     def send_mail(self):
         self.ensure_one()
         # Ensure there are selected partners or additional emails
         if not self.partner_id.ids and not self.emails:
             raise UserError(_("Please select at least one recipient or enter additional emails."))
-    
 
         # Get the email addresses from the selected partners
         partner_emails = [partner.email for partner in self.partner_id if partner.email]
@@ -76,6 +121,7 @@ class SendMail(models.TransientModel):
             email_formatted = tools.email_split_and_format(email)
             if email_formatted:
                 additional_emails.extend(email_formatted)
+
         # Combine all email addresses
         all_emails = partner_emails + additional_emails
         email_from = self.organizer_id.email_formatted
@@ -83,27 +129,19 @@ class SendMail(models.TransientModel):
 
         mail_template = self.env.ref('od_event.certificate_mail_template', raise_if_not_found=False)
 
-        for email in all_emails:
-            attachment_data = self.get_attachment_data()        
+        for partner in self.partner_id:
+            attachment_data = self.get_attachment_data(partner)
             mail_values = {
                 'subject': f'Certificate for the event {event_name}',
-                'email_to': email,
+                'email_to': partner.email,
                 'email_from': email_from,
-                #'body_html': 'Your HTML Body',
                 'attachment_ids': [(0, 0, attachment_data)],
-                 
-            }    
+            }
             mail_template.send_mail(self.id, force_send=True, email_values=mail_values)
-        return {'type': 'ir.actions.act_window_close'}
 
-    def get_attachment_data(self):
-        pdf_content = self.generate_pdf_with_image()
-        return {
-            'name': 'Certificate.pdf',
-            'type': 'binary',
-            'datas': base64.b64encode(pdf_content),
-            'res_model': 'event.send.mail',
-        }
+        return {'type': 'ir.actions.act_window_close'}
+    ''''
+
 
     def generate_pdf_with_image(self):
         # Create a BytesIO object to store the PDF content
@@ -145,4 +183,4 @@ class SendMail(models.TransientModel):
 
                 return pdf_buffer.read()
             else:
-                raise UserError(_("No background image attachment found."))
+                raise UserError(_("No background image attachment found.")) '''
