@@ -1,4 +1,4 @@
-from odoo import models, fields,_
+from odoo import models, fields,_,api
 
 class EventEvent(models.Model):
     _name = 'event.event'
@@ -7,8 +7,16 @@ class EventEvent(models.Model):
     event_id = fields.Many2one('event.event', string='event', required=True)
     partner_id = fields.Many2many(
         'res.partner', string='Recipients')
+    
+    att_name = fields.Char(
+        string='Attendee Name', index='trigram',
+        compute='_compute_name', readonly=False, store=True, tracking=10)
+    email = fields.Char(string='Email', compute='_compute_email', readonly=False, store=True, tracking=11)
+    phone = fields.Char(string='Phone', compute='_compute_phone', readonly=False, store=True, tracking=12)
+    mobile = fields.Char(string='Mobile', compute='_compute_mobile', readonly=False, store=True, tracking=13)
     email = fields.Char( string='Email')
     name=fields.Char(string='name')
+   
     user_id = fields.Many2one(
         'res.users', string='Responsible', tracking=True,
         default=lambda self: self.env.user)
@@ -20,12 +28,66 @@ class EventEvent(models.Model):
         'res.partner', string='Organizer', tracking=True,
         default=lambda self: self.env.company.partner_id,
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+    
+
+
+
+    @api.depends('partner_id')
+    def _compute_name(self):
+        for registration in self:
+            if not registration.name and registration.partner_id:
+                registration.name = registration._synchronize_partner_values(
+                    registration.partner_id,
+                    fnames=['name']
+                ).get('name') or False
+
+    @api.depends('partner_id')
+    def _compute_email(self):
+        for registration in self:
+            if not registration.email and registration.partner_id:
+                registration.email = registration._synchronize_partner_values(
+                    registration.partner_id,
+                    fnames=['email']
+                ).get('email') or False
+
+    @api.depends('partner_id')
+    def _compute_phone(self):
+        for registration in self:
+            if not registration.phone and registration.partner_id:
+                registration.phone = registration._synchronize_partner_values(
+                    registration.partner_id,
+                    fnames=['phone']
+                ).get('phone') or False
+
+    @api.depends('partner_id')
+    def _compute_mobile(self):
+        for registration in self:
+            if not registration.mobile and registration.partner_id:
+                registration.mobile = registration._synchronize_partner_values(
+                    registration.partner_id,
+                    fnames=['mobile']
+                ).get('mobile') or False
+
+
+    def _synchronize_partner_values(self, partner, fnames=None):
+        if fnames is None:
+            fnames = ['name', 'email', 'phone', 'mobile']
+        if partner:
+            contact_id = partner.address_get().get('contact', False)
+            if contact_id:
+                contact = self.env['res.partner'].browse(contact_id)
+                return dict((fname, contact[fname]) for fname in fnames if contact[fname])
+        return {}
+
 
     def action_test(self):
         template = self.env.ref('od_event.certificate_mail_template', raise_if_not_found=False)
         event_id = fields.Many2one('event.event', string='event', required=True)
         partner_id = fields.Many2many(
         'res.partner', string='Recipients')
+        fields_info = self.env['event.registration'].fields_get()
+        print(fields_info)
+        
 
         local_context = dict(
             self.env.context,

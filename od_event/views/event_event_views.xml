@@ -11,6 +11,7 @@
                 <header>
                    <button string="share certificate" class="oe_highlight" type="object" name="action_test" />
                 </header>
+             
             </field>
         </record>
     </data>
