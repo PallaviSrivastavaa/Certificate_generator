@@ -5,12 +5,10 @@ from odoo.addons.base.models.res_partner import _tz_get
 
 from odoo import api, fields, models, tools, _
 from odoo.exceptions import UserError
-import os
 import base64
-from PIL import Image, ImageDraw, ImageFont,ImageOps
+from PIL import Image
 from io import BytesIO
-import tempfile
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import letter,landscape
 from reportlab.pdfgen import canvas
 
 emails_split = re.compile(r"[;,\n\r]+")
@@ -32,26 +30,17 @@ class SendMail(models.TransientModel):
     email_from = fields.Char(
         'From', compute='_compute_email_from', readonly=False, store=True)
     user_id = fields.Many2one(
-        'res.users', string='Responsible', tracking=True,
+        'res.users', string='Responsible', 
         default=lambda self: self.env.user)
     company_id = fields.Many2one(
         'res.company', string='Company', change_default=True,
         default=lambda self: self.env.company,
         required=False)
     organizer_id = fields.Many2one(
-        'res.partner', string='Organizer', tracking=True,
+        'res.partner', string='Organizer', 
         default=lambda self: self.env.company.partner_id,
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
-    @api.model
-    def _get_default_author(self):
-        print(self.env.user.partner_id)
-        return self.env.user.partner_id
-    author_id = fields.Many2one(
-        'res.partner', 'Author', index=True,
-        ondelete='set null', default=_get_default_author)
-
   
-
     @api.depends('template_id.email_from')
     def _compute_email_from(self):
         if self.template_id.email_from:
@@ -66,6 +55,7 @@ class SendMail(models.TransientModel):
             'type': 'binary',
             'datas': base64.b64encode(pdf_content),
             'res_model': 'event.send.mail',
+
         }
     
     
@@ -74,31 +64,59 @@ class SendMail(models.TransientModel):
         pdf_buffer = BytesIO()
 
         # Create a new PDF document
-        pdf = canvas.Canvas(pdf_buffer, pagesize=letter)
+        pdf = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
+        custom_page_size = (1000, 800)  
 
-        # Retrieve the attachment data from the field (replace 'your_attachment_field' with the actual field name)
+        pdf = canvas.Canvas(pdf_buffer, pagesize=custom_page_size)
+
+
+   
         attachment_data = self.background_image
         if attachment_data:
             # Decode the base64-encoded data
             image_data = base64.b64decode(attachment_data)
-
+           
             # Create a BytesIO object from the binary image data
             image_buffer = BytesIO(image_data)
 
             # Create a PIL Image object from the BytesIO object
             image = Image.open(image_buffer)
 
-            # Draw the image on the PDF canvas
-            pdf.drawInlineImage(image, 0, 0, width=letter[0], height=letter[1])
+            original_width, original_height = image.size
 
-            # Add your logic to draw on the PDF and include attendee data
-            pdf.setFont("Helvetica", 12)
-            pdf.drawString(100, 750, f"Certificate for the event {self.event_id.name}")
+            # Calculate the scaling factors for width and height
+            scaling_factor_width = custom_page_size[0] / original_width
+            scaling_factor_height = custom_page_size[1] / original_height
 
-            # Adding attendee data for the current partner
-            pdf.drawString(100, 500, f"{partner.name}")
+            # Use the smaller scaling factor to maintain the aspect ratio
+            scaling_factor = min(scaling_factor_width, scaling_factor_height)
 
-            # Save the PDF content
+            
+            new_width = int(original_width * scaling_factor)
+            new_height = int(original_height * scaling_factor)
+
+            # Resize the image using the calculated dimensions
+            resized_image = image.resize((new_width, new_height), Image.ANTIALIAS) #ANTIALIAS is a high-quality resampling filter that smoothens the resized image.
+
+            
+            pdf_buffer = BytesIO()
+
+           
+            pdf = canvas.Canvas(pdf_buffer, pagesize=custom_page_size)
+
+            pdf.drawInlineImage(resized_image, 0, 0, width=custom_page_size[0], height=custom_page_size[1])
+            #pdf.setFont("Helvetica", 35)
+            pdf.setFont("Courier", 35)
+            
+            if len(partner.name.split())==2:
+                pdf.drawString(380, 390, f"{partner.name}")
+            elif len(partner.name.split())==1:
+                print('work')
+                pdf.drawString(420, 390, f"{partner.name}")
+            else:
+                pdf.drawString(350, 390, f"{partner.name}")
+
+
             pdf.save()
 
             # Seek to the beginning of the buffer
@@ -107,23 +125,13 @@ class SendMail(models.TransientModel):
             return pdf_buffer.read()
         else:
             raise UserError(_("No background image attachment found."))
+        
     def send_mail(self):
         self.ensure_one()
         # Ensure there are selected partners or additional emails
         if not self.partner_id.ids and not self.emails:
             raise UserError(_("Please select at least one recipient or enter additional emails."))
 
-        # Get the email addresses from the selected partners
-        partner_emails = [partner.email for partner in self.partner_id if partner.email]
-        # Split and format additional emails
-        additional_emails = []
-        for email in emails_split.split(self.emails or ''):
-            email_formatted = tools.email_split_and_format(email)
-            if email_formatted:
-                additional_emails.extend(email_formatted)
-
-        # Combine all email addresses
-        all_emails = partner_emails + additional_emails
         email_from = self.organizer_id.email_formatted
         event_name = self.event_id.name
 
@@ -131,6 +139,7 @@ class SendMail(models.TransientModel):
 
         for partner in self.partner_id:
             attachment_data = self.get_attachment_data(partner)
+
             mail_values = {
                 'subject': f'Certificate for the event {event_name}',
                 'email_to': partner.email,
@@ -140,47 +149,5 @@ class SendMail(models.TransientModel):
             mail_template.send_mail(self.id, force_send=True, email_values=mail_values)
 
         return {'type': 'ir.actions.act_window_close'}
-    ''''
 
 
-    def generate_pdf_with_image(self):
-        # Create a BytesIO object to store the PDF content
-            pdf_buffer = BytesIO()
-
-            # Create a new PDF document
-            pdf = canvas.Canvas(pdf_buffer, pagesize=letter)
-
-            # Retrieve the attachment data from the field (replace 'your_attachment_field' with the actual field name)
-            attachment_data = self.background_image
-            if attachment_data:
-                # Decode the base64-encoded data
-                image_data = base64.b64decode(attachment_data)
-                
-                # Create a BytesIO object from the binary image data
-                image_buffer = BytesIO(image_data)
-                
-                # Create a PIL Image object from the BytesIO object
-                image = Image.open(image_buffer)
-
-                # Draw the image on the PDF canvas
-                pdf.drawInlineImage(image, 0, 0, width=letter[0], height=letter[1])
-
-                # Add your logic to draw on the PDF and include attendee data
-                pdf.setFont("Helvetica", 12)
-                pdf.drawString(100, 750, f"Certificate for the event {self.event_id.name}")
-
-                # Example: Adding attendee data
-                y_position = 500
-                for partner in self.partner_id:
-                    pdf.drawString(100, y_position, f"Attendee: {partner.name}")
-                    y_position -= 20
-
-                # Save the PDF content
-                pdf.save()
-
-                # Seek to the beginning of the buffer
-                pdf_buffer.seek(0)
-
-                return pdf_buffer.read()
-            else:
-                raise UserError(_("No background image attachment found.")) '''

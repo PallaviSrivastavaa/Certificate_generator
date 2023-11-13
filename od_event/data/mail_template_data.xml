@@ -10,15 +10,13 @@
     <field name="body_html" type="html">
   
     <div>
-        Dear <t t-out="object.name or ''">Oscar Morgan</t>,<br/>
+        Dear participant<br/>
+        Here is your certificate for the event <t t-out="object.event_id.name"></t>.<br/>
         Thank you for your participation.
-        Here is your certificate for the event  <t t-out="object.name or ''"></t>.<br/>
         If you have any questions, please let us know.
         <br/><br/>
         Thank you,
-        <t t-if="object.event_id.user_id.signature">
-            <br />
-            <t t-out="object.event_id.user_id.signature or ''">--<br/>Mitchell Admin</t>
+        <t t-out="object.event_id.user_id.signature">
         </t>
     </div>
 
