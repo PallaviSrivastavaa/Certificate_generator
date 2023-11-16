@@ -10,12 +10,13 @@ from PIL import Image
 from io import BytesIO
 from reportlab.lib.pagesizes import letter,landscape
 from reportlab.pdfgen import canvas
+from pdf2image import convert_from_bytes
 
 emails_split = re.compile(r"[;,\n\r]+")
 
 class SendMail(models.TransientModel):
     _name = 'event.send.mail'
-    _inherit = ['mail.composer.mixin']
+    _inherit = ['mail.composer.mixin','event.registration']
     _description = 'send mail Wizard'
 
 
@@ -107,7 +108,11 @@ class SendMail(models.TransientModel):
             pdf.drawInlineImage(resized_image, 0, 0, width=custom_page_size[0], height=custom_page_size[1])
             #pdf.setFont("Helvetica", 35)
             pdf.setFont("Courier", 35)
-            
+            text_w= pdf.stringWidth(f"{partner.name}","Courier", 35)
+            text_h=35
+            text_x = (new_width - text_w) / 2
+            text_y = (new_height - text_h) / 2
+            '''
             if len(partner.name.split())==2:
                 pdf.drawString(380, 390, f"{partner.name}")
             elif len(partner.name.split())==1:
@@ -116,6 +121,11 @@ class SendMail(models.TransientModel):
             else:
                 pdf.drawString(350, 390, f"{partner.name}")
 
+            '''
+           
+            pdf.drawString(text_x, text_y, f"{partner.name}")
+            pdf.setFont("Courier-Bold", 25)
+            pdf.drawString(450, 280, f"{self.event_id.name}")
 
             pdf.save()
 
@@ -126,6 +136,21 @@ class SendMail(models.TransientModel):
         else:
             raise UserError(_("No background image attachment found."))
         
+    @api.onchange('event_id')
+    def get_attendees(self):
+            if self.event_id:
+             
+                registrations = self.env['event.registration'].search([('event_id', '=', self.event_id.id)])
+                partner_ids = registrations.mapped('partner_id')
+                self.partner_id = partner_ids
+                print(partner_ids)
+                print(self.event_id)
+            else:
+                self.partner_id = False
+       
+
+        
+
     def send_mail(self):
         self.ensure_one()
         # Ensure there are selected partners or additional emails
@@ -151,3 +176,75 @@ class SendMail(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
 
+    '''
+    def preview_image(self, partner):
+        # Create a BytesIO object to store the PDF content
+        pdf_buffer = BytesIO()
+
+        # Create a new PDF document
+        pdf = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
+        custom_page_size = (1000, 800)  
+
+        pdf = canvas.Canvas(pdf_buffer, pagesize=custom_page_size)
+
+
+   
+        attachment_data = self.background_image
+        if attachment_data:
+            # Decode the base64-encoded data
+            image_data = base64.b64decode(attachment_data)
+           
+            # Create a BytesIO object from the binary image data
+            image_buffer = BytesIO(image_data)
+
+            # Create a PIL Image object from the BytesIO object
+            image = Image.open(image_buffer)
+
+            original_width, original_height = image.size
+
+            # Calculate the scaling factors for width and height
+            scaling_factor_width = custom_page_size[0] / original_width
+            scaling_factor_height = custom_page_size[1] / original_height
+
+            # Use the smaller scaling factor to maintain the aspect ratio
+            scaling_factor = min(scaling_factor_width, scaling_factor_height)
+
+            
+            new_width = int(original_width * scaling_factor)
+            new_height = int(original_height * scaling_factor)
+
+            # Resize the image using the calculated dimensions
+            resized_image = image.resize((new_width, new_height), Image.ANTIALIAS) #ANTIALIAS is a high-quality resampling filter that smoothens the resized image.
+
+            
+            pdf_buffer = BytesIO()
+
+           
+            pdf = canvas.Canvas(pdf_buffer, pagesize=custom_page_size)
+
+            pdf.drawInlineImage(resized_image, 0, 0, width=custom_page_size[0], height=custom_page_size[1])
+            #pdf.setFont("Helvetica", 35)
+            pdf.setFont("Courier", 35)
+            text_w= pdf.stringWidth(f"{partner.name}","Courier", 35)
+            text_h=35
+            text_x = (new_width - text_w) / 2
+            text_y = (new_height - text_h) / 2
+            
+          
+           
+           
+            pdf.drawString(text_x, text_y, f"{partner.name}")
+            pdf.setFont("Courier", 25)
+            pdf.drawString(450, 280, f"{self.event_id.name}")
+
+            pdf.save()
+            pdf_image = convert_from_bytes(pdf_buffer.read())
+            pdf_image.show()
+            # Seek to the beginning of the buffer
+            pdf_buffer.seek(0)
+
+            
+        else:
+            raise UserError(_("No background image attachment found."))
+        '''
+        
