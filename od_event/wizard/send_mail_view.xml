@@ -22,8 +22,8 @@
                             </group>
                                <group>
               
-                <field name="background_image" widget="image" options="{'no_create': True, 'no_open': True}" context="{'default_res_model': 'event.event', 'default_res_id': active_id}" label="certificate template"/>
-           </group>
+               <!-- <field name="background_image" widget="image" options="{'no_create': True, 'no_open': True}" context="{'default_res_model': 'event.event', 'default_res_id': active_id}" label="certificate template"/>
+           --></group>
                     </sheet>
                     <footer>
                         <button string="send mail" class="oe_highlight" type="object" name="send_mail" />

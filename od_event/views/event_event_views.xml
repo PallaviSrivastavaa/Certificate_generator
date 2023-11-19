@@ -3,7 +3,7 @@
     <data>
         <!-- Inheriting the event form view -->
         <record id="view_event_inherited" model="ir.ui.view">
-            <field name="name">event.event</field>
+            <field name="name">event.event.inherited</field>
             <field name="model">event.event</field>
             <field name="inherit_id" ref="event.view_event_form" />
             <field name="arch" type="xml">
@@ -11,7 +11,9 @@
                 <header>
                    <button string="share certificate" class="oe_highlight" type="object" name="action_test" />
                 </header>
-             
+                <group>
+              <field name="background_image" widget="image" options="{'no_create': True, 'no_open': True}" context="{'default_res_model': 'event.event', 'default_res_id': active_id}" label="certificate template"/>
+            </group>
             </field>
         </record>
     </data>

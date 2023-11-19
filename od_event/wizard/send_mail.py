@@ -16,11 +16,11 @@ emails_split = re.compile(r"[;,\n\r]+")
 
 class SendMail(models.TransientModel):
     _name = 'event.send.mail'
-    _inherit = ['mail.composer.mixin','event.registration']
+    _inherit = ['mail.composer.mixin']
     _description = 'send mail Wizard'
 
 
-    background_image = fields.Image("Background Image")
+    background_image = fields.Image('Background Image',readonly=True)
     name = fields.Char(string='Event')
     background_image = fields.Image("Background Image")
     event_id = fields.Many2one('event.event', string='event', required=True)
@@ -48,7 +48,9 @@ class SendMail(models.TransientModel):
             self.email_from = self.template_id.email_from
         else:
             self.email_from = self.env.user.email_formatted
-    
+   
+        
+       
     def get_attachment_data(self,partner):
         pdf_content = self.generate_pdf_with_image(partner)
         return {
@@ -71,7 +73,7 @@ class SendMail(models.TransientModel):
         pdf = canvas.Canvas(pdf_buffer, pagesize=custom_page_size)
 
 
-   
+        background_image = self.env.context.get('default_background_image', False)
         attachment_data = self.background_image
         if attachment_data:
             # Decode the base64-encoded data
@@ -112,17 +114,7 @@ class SendMail(models.TransientModel):
             text_h=35
             text_x = (new_width - text_w) / 2
             text_y = (new_height - text_h) / 2
-            '''
-            if len(partner.name.split())==2:
-                pdf.drawString(380, 390, f"{partner.name}")
-            elif len(partner.name.split())==1:
-                print('work')
-                pdf.drawString(420, 390, f"{partner.name}")
-            else:
-                pdf.drawString(350, 390, f"{partner.name}")
 
-            '''
-           
             pdf.drawString(text_x, text_y, f"{partner.name}")
             pdf.setFont("Courier-Bold", 25)
             pdf.drawString(450, 280, f"{self.event_id.name}")
