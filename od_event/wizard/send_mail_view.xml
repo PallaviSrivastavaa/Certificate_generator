@@ -11,7 +11,7 @@
                          <group>
                             <field name="event_id" readonly="context.get('default_event_id')" label="Event"/>
                              <group>
-                       <field name="partner_id"
+                       <field name="attendee_id"
                                 widget="many2many_tags_email"
                                 placeholder="Add existing contacts..."
                                 context="{'force_email':True, 'show_email':True, 'no_create_edit': True}"/>                            
@@ -20,13 +20,11 @@
                                  <group>                             
                                 <field name="template_id" label="Use template"/>
                             </group>
-                               <group>
-              
-               <!-- <field name="background_image" widget="image" options="{'no_create': True, 'no_open': True}" context="{'default_res_model': 'event.event', 'default_res_id': active_id}" label="certificate template"/>
-           --></group>
                     </sheet>
                     <footer>
                         <button string="send mail" class="oe_highlight" type="object" name="send_mail" />
+                        <button string="preview" class="oe_highlight" type="object" name="preview" />
+                        <button string="close" class="oe_highlight" type="object" name="close" />
                         </footer>
                 </form>
             </field>

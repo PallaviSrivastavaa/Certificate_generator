@@ -85,6 +85,7 @@ class EventCertificate(models.Model):
         local_context = dict(
             self.env.context,
             default_event_id=self.id,
+            default_event_name=self.event_id.name,
             default_use_template=bool(template),
             default_template_id=template and template.id or False,
             default_email_layout_xmlid='mail.mail_notification_light',
