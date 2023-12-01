@@ -10,7 +10,7 @@ from PIL import Image
 from io import BytesIO
 from reportlab.lib.pagesizes import letter,landscape
 from reportlab.pdfgen import canvas
-from pdf2image import convert_from_bytes
+
 
 emails_split = re.compile(r"[;,\n\r]+")
 
@@ -24,6 +24,9 @@ class SendMail(models.TransientModel):
     attendee_name = fields.Many2one('event.registration',string='attendee name')
     attendee_id=fields.Many2many('event.registration',string='attendee')
     background_image = fields.Image("Background Image")
+
+    x_coordinate=fields.Char(string='add x cordinate for event name in the template')
+    y_coordinate=fields.Char(string='add y cordinate for event name in the template')
     event_id = fields.Many2one('event.event', string='event', required=True)
     #partner_id = fields.Many2many('res.partner',string='Recipients')
     emails = fields.Text(string='Additional emails', help="This list of emails of recipients will not be converted in contacts.\
@@ -77,7 +80,7 @@ class SendMail(models.TransientModel):
 
         background_image = self.env.context.get('default_background_image', False)
         attachment_data = self.background_image
-        if attachment_data:
+        if attachment_data and self.x_coordinate and self.y_coordinate:
             # Decode the base64-encoded data
             image_data = base64.b64decode(attachment_data)
            
@@ -119,7 +122,7 @@ class SendMail(models.TransientModel):
 
             pdf.drawString(text_x, text_y, f"{partner.name}")
             pdf.setFont("Courier-Bold", 25)
-            pdf.drawString(450, 280, f"{self.event_id.name}")
+            pdf.drawString(int(self.x_coordinate), int(self.y_coordinate), f"{self.event_id.name}")
 
             pdf.save()
 
@@ -128,7 +131,7 @@ class SendMail(models.TransientModel):
 
             return pdf_buffer.read()
         else:
-            raise UserError(_("No background image attachment found."))
+            raise UserError(_("No background image attachment found or x and y coordinate given."))
   
         
     @api.onchange('event_id')
@@ -137,7 +140,8 @@ class SendMail(models.TransientModel):
             registrations = self.env['event.registration'].search([('event_id', '=', self.event_id.id)])
             # Extract attendee IDs directly from the registrations
             attendee_ids = registrations.mapped('id')
-            self.attendee_id = [(6, 0, attendee_ids)]     
+            #used to update many2many fields with a list of IDs where 6 indicates the ids need to be updated and 0 indicates prev ids need to be cleared
+            self.attendee_id = [(6, 0, attendee_ids)] 
         else:
             self.attendee_id = False
     def preview(self):
@@ -147,7 +151,7 @@ class SendMail(models.TransientModel):
         custom_page_size = (1000, 800)  
         pdf = canvas.Canvas(pdf_buffer, pagesize=custom_page_size)
         attachment_data = self.background_image
-        if attachment_data:
+        if attachment_data and self.x_coordinate and self.y_coordinate:
             # Decode the base64-encoded data
             image_data = base64.b64decode(attachment_data)
            
@@ -189,7 +193,7 @@ class SendMail(models.TransientModel):
 
             pdf.drawString(text_x, text_y, f"example name")
             pdf.setFont("Courier-Bold", 25)
-            pdf.drawString(450, 280, f"example event")
+            pdf.drawString(int(self.x_coordinate), int(self.y_coordinate), f"example event")
 
             pdf.save()
 
@@ -197,13 +201,13 @@ class SendMail(models.TransientModel):
             pdf_buffer.seek(0)
 
             pdf_content=pdf_buffer.read()
-            save_name = os.path.join(os.path.expanduser("~"), "Downloads/", "example.pdf")
+            save_name = os.path.join(os.path.expanduser("~"), "Downloads/", "example.pdf") #expand user is used to expand the initial path of the component
             with open(save_name, 'wb') as f:
                 f.write(pdf_content)
 
 
         else:
-            raise UserError(_("No background image attachment found."))
+            raise UserError(_("No background image attachment found or x and y coordinate given.."))
 
 
     def send_mail(self):

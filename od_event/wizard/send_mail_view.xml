@@ -1,32 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-        <record model="ir.ui.view" id="send_mail_view_form">
-            <field name="name">event.send.mail.view.form</field>
-            <field name="model">event.send.mail</field>
-            <field name="arch" type="xml">
-                <form string="Compose Email">
-                    <sheet>                    
-                         <field name="render_model" invisible="1"/>
-                         <group>
-                            <field name="event_id" readonly="context.get('default_event_id')" label="Event"/>
-                             <group>
-                       <field name="attendee_id"
-                                widget="many2many_tags_email"
-                                placeholder="Add existing contacts..."
-                                context="{'force_email':True, 'show_email':True, 'no_create_edit': True}"/>                            
+    <record model="ir.ui.view" id="send_mail_view_form">
+        <field name="name">event.send.mail.view.form</field>
+        <field name="model">event.send.mail</field>
+        <field name="arch" type="xml">
+            <form string="Compose Email">
+                <sheet>
+                    <field name="render_model" invisible="1"/>
+                    <group>
+                        <field name="event_id" readonly="context.get('default_event_id')" label="Event"/>
+                        <group>
+                            <field name="attendee_id"
+                                   widget="many2many_tags_email"
+                                   placeholder="Add existing contacts..."
+                                   context="{'force_email':True, 'show_email':True, 'no_create_edit': True}"/>  
+                            
+                            
+                            <field name="x_coordinate"/>
+                            <field name="y_coordinate"/>
+                      
                         </group>
-                            </group>
-                                 <group>                             
-                                <field name="template_id" label="Use template"/>
-                            </group>
-                    </sheet>
-                    <footer>
-                        <button string="send mail" class="oe_highlight" type="object" name="send_mail" />
-                        <button string="preview" class="oe_highlight" type="object" name="preview" />
-                        <button string="close" class="oe_highlight" type="object" name="close" />
-                        </footer>
-                </form>
-            </field>
-        </record>
+                    </group>
+                    <group>
+                        <field name="template_id" label="Use template"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="send mail" class="oe_highlight" type="object" name="send_mail" />
+                    <button string="preview" class="oe_highlight" type="object" name="preview" />
+                    <button string="close" class="oe_highlight" type="object" name="close" />
+                </footer>
+            </form>
+        </field>
+    </record>
 </odoo>

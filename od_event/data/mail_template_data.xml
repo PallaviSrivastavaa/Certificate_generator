@@ -7,16 +7,11 @@
             <field name="email_from">{{ (object.event_id.organizer_id.email_formatted or object.event_id.user_id.email_formatted or '') }}</field>
             <field name="email_to">{{ (object.partner_id.email_formatted or object.email) }}</field>
             <field name="description">Sent to participant </field>
-    <field name="body_html" type="html">
-  
+    <field name="body_html" type="html"> 
     <div>
         Dear participant<br/>
         Here is your certificate for the event <t t-out="object.event_id.name"></t>.<br/>
     </div>
-
-
-
 </field>
-
     </record>
     </odoo>

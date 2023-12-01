@@ -7,7 +7,7 @@
 'description': "Description here",
 'depends': ['mail','event','base_setup','portal', 'utm'],
 'data': ['views/event_event_views.xml','data/mail_template_data.xml','security/ir.model.access.csv','wizard/send_mail_view.xml'],
-
+'external dependencies' : {"python":['PIL','io','reportlab','base64']},
 'demo': [],
 'installable': True,
 'assets': {},
