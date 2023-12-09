@@ -17,8 +17,7 @@
                                    context="{'force_email':True, 'show_email':True, 'no_create_edit': True}"/>  
                             
                             
-                            <field name="x_coordinate"/>
-                            <field name="y_coordinate"/>
+
                       
                         </group>
                     </group>

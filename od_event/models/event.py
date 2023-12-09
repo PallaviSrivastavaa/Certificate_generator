@@ -15,7 +15,8 @@ class EventCertificate(models.Model):
     mobile = fields.Char(string='Mobile.view.form<', compute='_compute_mobile', readonly=False, store=True, tracking=13)
     email = fields.Char( string='Email')
     name=fields.Char(string='name')
-   
+    x_coordinate=fields.Char()
+    y_coordinate=fields.Char()
     user_id = fields.Many2one(
         'res.users', string='Responsible', tracking=True,
         default=lambda self: self.env.user)
@@ -91,6 +92,9 @@ class EventCertificate(models.Model):
             default_email_layout_xmlid='mail.mail_notification_light',
             default_mailing_domain=repr([('event_id', 'in', self.ids),('state', '!=', 'cancel')]),
             default_background_image =self.background_image or False,
+            default_x_coordinate=self.x_coordinate or False,
+            default_y_coordinate=self.y_coordinate or False,
+
         )
         return {
             'type': 'ir.actions.act_window',

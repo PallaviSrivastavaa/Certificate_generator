@@ -24,9 +24,8 @@ class SendMail(models.TransientModel):
     attendee_name = fields.Many2one('event.registration',string='attendee name')
     attendee_id=fields.Many2many('event.registration',string='attendee')
     background_image = fields.Image("Background Image")
-
-    x_coordinate=fields.Char(string='add x cordinate for event name in the template')
-    y_coordinate=fields.Char(string='add y cordinate for event name in the template')
+    x_coordinate=fields.Char()
+    y_coordinate=fields.Char()
     event_id = fields.Many2one('event.event', string='event', required=True)
     #partner_id = fields.Many2many('res.partner',string='Recipients')
     emails = fields.Text(string='Additional emails', help="This list of emails of recipients will not be converted in contacts.\
@@ -130,8 +129,10 @@ class SendMail(models.TransientModel):
             pdf_buffer.seek(0)
 
             return pdf_buffer.read()
+        elif(not(self.background_image)):
+            raise UserError(_("No background image attachment found"))
         else:
-            raise UserError(_("No background image attachment found or x and y coordinate given."))
+            raise UserError(_("x or y coordinate not given"))
   
         
     @api.onchange('event_id')

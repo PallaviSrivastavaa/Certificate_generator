@@ -11,8 +11,10 @@
                 <header>
                    <button string="share certificate" class="oe_highlight" type="object" name="action_test" />
                 </header>
-                <group>
-              <field name="background_image" widget="image" options="{'no_create': True, 'no_open': True}" context="{'default_res_model': 'event.event', 'default_res_id': active_id}" label="certificate template"/>
+            <group name="right_event_details">
+            <field name="background_image" widget="image" options="{'no_create': True, 'no_open': True, 'size': [250, 250]}" context="{'default_res_model': 'event.event', 'default_res_id': active_id}" label="certificate template"/>
+            <field name="x_coordinate" colspan="2" />
+            <field name="y_coordinate" colspan="2" />
             </group>
             </field>
         </record>
