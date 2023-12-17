@@ -76,8 +76,6 @@ class SendMail(models.TransientModel):
 
         pdf = canvas.Canvas(pdf_buffer, pagesize=custom_page_size)
 
-
-        background_image = self.env.context.get('default_background_image', False)
         attachment_data = self.background_image
         if attachment_data and self.x_coordinate and self.y_coordinate:
             # Decode the base64-encoded data
@@ -139,6 +137,7 @@ class SendMail(models.TransientModel):
     def get_attendees(self):
         if self.event_id:  
             registrations = self.env['event.registration'].search([('event_id', '=', self.event_id.id)])
+            print(registrations)
             # Extract attendee IDs directly from the registrations
             attendee_ids = registrations.mapped('id')
             #used to update many2many fields with a list of IDs where 6 indicates the ids need to be updated and 0 indicates prev ids need to be cleared
@@ -212,15 +211,17 @@ class SendMail(models.TransientModel):
 
 
     def send_mail(self):
-        self.ensure_one()
+        #self.ensure_one()
         
         # Ensure there are selected partners or additional emails
         if not self.attendee_id.ids and not self.emails:
             raise UserError(_("Please select at least one recipient or enter additional emails."))
         email_from = self.organizer_id.email_formatted
         event_name = self.event_id.name
-
+        #template_obj = self.env['email.template'].sudo().search([('name','=','od_event.certificate_mail_template')], limit=1)
         mail_template = self.env.ref('od_event.certificate_mail_template', raise_if_not_found=False)
+        body = mail_template.body_html
+        print(body)
 
         for attendee in self.attendee_id:
             attachment_data = self.get_attachment_data(attendee)
@@ -228,10 +229,13 @@ class SendMail(models.TransientModel):
             mail_values = {
                 'subject': f'Certificate for the event {event_name}',
                 'email_to': attendee.email,
+                'body_html':body,
                 'email_from': email_from,
                 'attachment_ids': [(0, 0, attachment_data)],    
             }
-            mail_template.send_mail(self.id, force_send=True, email_values=mail_values)
+            print("mail id" + str(self.id))
+            mail = self.env['mail.mail'].create(mail_values)
+            mail.send()
 
     def close(self):
           return {'type': 'ir.actions.act_window_close'}

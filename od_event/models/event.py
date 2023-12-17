@@ -82,7 +82,7 @@ class EventCertificate(models.Model):
 
     def action_test(self):
         template = self.env.ref('od_event.certificate_mail_template', raise_if_not_found=False)
-        
+        print(self.id)
         local_context = dict(
             self.env.context,
             default_event_id=self.id,
