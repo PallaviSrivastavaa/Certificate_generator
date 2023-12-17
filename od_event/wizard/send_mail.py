@@ -225,6 +225,11 @@ class SendMail(models.TransientModel):
 
         for attendee in self.attendee_id:
             attachment_data = self.get_attachment_data(attendee)
+            body=body.replace('--attendee--',self.attendee_id.name)
+            body=body.replace('--event--',self.event_id.name)
+            body=body.replace('--user--',self.user_id.name)
+
+
 
             mail_values = {
                 'subject': f'Certificate for the event {event_name}',
