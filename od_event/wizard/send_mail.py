@@ -194,7 +194,6 @@ class SendMail(models.TransientModel):
             pdf.drawString(text_x, text_y, f"example name")
             pdf.setFont("Courier-Bold", 25)
             pdf.drawString(int(self.x_coordinate), int(self.y_coordinate), f"example event")
-
             pdf.save()
 
             # Seek to the beginning of the buffer
@@ -211,21 +210,18 @@ class SendMail(models.TransientModel):
 
 
     def send_mail(self):
-        #self.ensure_one()
+        self.ensure_one()
         
         # Ensure there are selected partners or additional emails
         if not self.attendee_id.ids and not self.emails:
             raise UserError(_("Please select at least one recipient or enter additional emails."))
         email_from = self.organizer_id.email_formatted
         event_name = self.event_id.name
-        #template_obj = self.env['email.template'].sudo().search([('name','=','od_event.certificate_mail_template')], limit=1)
         mail_template = self.env.ref('od_event.certificate_mail_template', raise_if_not_found=False)
         body = mail_template.body_html
-        print(body)
 
         for attendee in self.attendee_id:
             attachment_data = self.get_attachment_data(attendee)
-            body=body.replace('--attendee--',self.attendee_id.name)
             body=body.replace('--event--',self.event_id.name)
             body=body.replace('--user--',self.user_id.name)
 
@@ -238,7 +234,6 @@ class SendMail(models.TransientModel):
                 'email_from': email_from,
                 'attachment_ids': [(0, 0, attachment_data)],    
             }
-            print("mail id" + str(self.id))
             mail = self.env['mail.mail'].create(mail_values)
             mail.send()
 

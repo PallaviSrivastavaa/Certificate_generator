@@ -8,7 +8,7 @@
             <field name="email_to">{{ (object.partner_id.email_formatted or object.email) }}</field>
             <field name="description">Sent to participant </field>
     <field name="body_html"><![CDATA[
-                    <p>Dear Participant --attendee--,</p>
+                    <p>Dear Participant,</p>
                     <p>Here is your certificate for the event --event--.</p>
                     <p>Regards,</p>
                     <p>--user--</>

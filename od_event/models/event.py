@@ -1,4 +1,5 @@
-from odoo import models, fields,_,api
+from odoo import models, fields,_
+from reportlab.lib import fonts
 
 class EventCertificate(models.Model):
     _inherit = 'event.event'
@@ -6,15 +7,11 @@ class EventCertificate(models.Model):
     event_id = fields.Many2one('event.event', string='event', required=True)
     partner_id = fields.Many2many(
         'res.partner', string='Recipients')
-    
-    att_name = fields.Char(
-        string='Attendee Name', index='trigram',
-        compute='_compute_name', readonly=False, store=True, tracking=10)
-    email = fields.Char(string='Email', compute='_compute_email', readonly=False, store=True, tracking=11)
-    phone = fields.Char(string='Phone', compute='_compute_phone', readonly=False, store=True, tracking=12)
-    mobile = fields.Char(string='Mobile.view.form<', compute='_compute_mobile', readonly=False, store=True, tracking=13)
     email = fields.Char( string='Email')
     name=fields.Char(string='name')
+
+    #font_family = fields.Selection(selection='_get_font_choices', string='Font Family')
+
     x_coordinate=fields.Char()
     y_coordinate=fields.Char()
     user_id = fields.Many2one(
@@ -30,55 +27,10 @@ class EventCertificate(models.Model):
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     background_image=fields.Image('background image')
 
-
-
-    @api.depends('partner_id')
-    def _compute_name(self):
-        for registration in self:
-            if not registration.name and registration.partner_id:
-                registration.name = registration._synchronize_partner_values(
-                    registration.partner_id,
-                    fnames=['name']
-                ).get('name') or False
-
-    @api.depends('partner_id')
-    def _compute_email(self):
-        for registration in self:
-            if not registration.email and registration.partner_id:
-                registration.email = registration._synchronize_partner_values(
-                    registration.partner_id,
-                    fnames=['email']
-                ).get('email') or False
-
-    @api.depends('partner_id')
-    def _compute_phone(self):
-        for registration in self:
-            if not registration.phone and registration.partner_id:
-                registration.phone = registration._synchronize_partner_values(
-                    registration.partner_id,
-                    fnames=['phone']
-                ).get('phone') or False
-
-    @api.depends('partner_id')
-    def _compute_mobile(self):
-        for registration in self:
-            if not registration.mobile and registration.partner_id:
-                registration.mobile = registration._synchronize_partner_values(
-                    registration.partner_id,
-                    fnames=['mobile']
-                ).get('mobile') or False
-
-
-    def _synchronize_partner_values(self, partner, fnames=None):
-        if fnames is None:
-            fnames = ['name', 'email', 'phone', 'mobile']
-        if partner:
-            contact_id = partner.address_get().get('contact', False)
-            if contact_id:
-                contact = self.env['res.partner'].browse(contact_id)
-                return dict((fname, contact[fname]) for fname in fnames if contact[fname])
-        return {}
-
+    '''def _get_font_choices(self):
+        font_list = fonts.getFonts()
+        return [(font, font) for font in font_list]
+    '''
 
     def action_test(self):
         template = self.env.ref('od_event.certificate_mail_template', raise_if_not_found=False)
