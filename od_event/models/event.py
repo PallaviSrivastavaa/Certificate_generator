@@ -7,13 +7,14 @@ class EventCertificate(models.Model):
     event_id = fields.Many2one('event.event', string='event', required=True)
     partner_id = fields.Many2many(
         'res.partner', string='Recipients')
-    email = fields.Char( string='Email')
+    email = fields.Char(string='Email')
     name=fields.Char(string='name')
 
-    #font_family = fields.Selection(selection='_get_font_choices', string='Font Family')
+    x_coordinate_for_event_name=fields.Char()
+    y_coordinate_for_event_name=fields.Char()
+    x_coordinate_for_participant_name=fields.Char()
+    y_coordinate_for_participant_name=fields.Char()
 
-    x_coordinate=fields.Char()
-    y_coordinate=fields.Char()
     user_id = fields.Many2one(
         'res.users', string='Responsible', tracking=True,
         default=lambda self: self.env.user)
@@ -27,14 +28,9 @@ class EventCertificate(models.Model):
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     background_image=fields.Image('background image')
 
-    '''def _get_font_choices(self):
-        font_list = fonts.getFonts()
-        return [(font, font) for font in font_list]
-    '''
-
     def action_test(self):
+
         template = self.env.ref('od_event.certificate_mail_template', raise_if_not_found=False)
-        print(self.id)
         local_context = dict(
             self.env.context,
             default_event_id=self.id,
@@ -44,8 +40,10 @@ class EventCertificate(models.Model):
             default_email_layout_xmlid='mail.mail_notification_light',
             default_mailing_domain=repr([('event_id', 'in', self.ids),('state', '!=', 'cancel')]),
             default_background_image =self.background_image or False,
-            default_x_coordinate=self.x_coordinate or False,
-            default_y_coordinate=self.y_coordinate or False,
+            default_x_coordinate_for_event_name=self.x_coordinate_for_event_name or False,
+            default_y_coordinate_for_event_name=self.y_coordinate_for_event_name or False,
+            default_x_coordinate_for_participant_name=self.x_coordinate_for_participant_name or False,
+            default_y_coordinate_for_participant_name=self.y_coordinate_for_participant_name or False,
 
         )
         return {
