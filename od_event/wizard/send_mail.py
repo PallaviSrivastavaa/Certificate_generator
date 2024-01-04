@@ -7,6 +7,7 @@ from PIL import Image
 from io import BytesIO
 from reportlab.lib.pagesizes import letter,landscape
 from reportlab.pdfgen import canvas
+from reportlab.pdfbase.pdfmetrics import stringWidth
 
 class SendMail(models.TransientModel):
     _name = 'event.send.mail'
@@ -92,7 +93,11 @@ class SendMail(models.TransientModel):
             pdf = canvas.Canvas(pdf_buffer, pagesize=custom_page_size)
             pdf.drawInlineImage(resized_image, 0, 0, width=custom_page_size[0], height=custom_page_size[1])
             pdf.setFont("Helvetica", 35)
-            pdf.drawString(int(self.x_coordinate_for_participant_name), int(self.y_coordinate_for_participant_name),f"{partner.name}")
+            width=stringWidth(f"{partner.name}","Helvetica",35)
+            height=35
+            wh=width/2
+            hh=height/2
+            pdf.drawString(int(self.x_coordinate_for_participant_name)-wh, int(self.y_coordinate_for_participant_name)-hh,f"{partner.name}")
             pdf.setFont("Helvetica", 35)
             pdf.drawString(int(self.x_coordinate_for_event_name), int(self.y_coordinate_for_event_name), f"{self.event_id.name}")
 
@@ -140,6 +145,7 @@ class SendMail(models.TransientModel):
 
             new_width = int(original_width * scaling_factor)
             new_height = int(original_height * scaling_factor)
+            
 
             resized_image = image.resize((new_width, new_height), Image.ANTIALIAS)
 
@@ -148,7 +154,11 @@ class SendMail(models.TransientModel):
             pdf.drawInlineImage(resized_image, 0, 0, width=custom_page_size[0], height=custom_page_size[1])
 
             pdf.setFont("Helvetica", 35)
-            pdf.drawString(int(self.x_coordinate_for_participant_name), int(self.y_coordinate_for_participant_name),f"example name")
+            width=stringWidth(f"example name","Helvetica",35)
+            height=35
+            wh=width/2
+            hh=height/2
+            pdf.drawString(int(self.x_coordinate_for_participant_name)-wh, int(self.y_coordinate_for_participant_name)-hh,f"example name")
             pdf.setFont("Helvetica", 35)
             pdf.drawString(int(self.x_coordinate_for_event_name), int(self.y_coordinate_for_event_name), f"example event name")
 
